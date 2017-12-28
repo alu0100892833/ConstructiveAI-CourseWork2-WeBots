@@ -1,0 +1,90 @@
+#VRML_SIM V8.6 utf8
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.045995814 0.97771088 0.20485561 3.5441477
+  position -1.0482922 1.6410637 -2.5509595
+}
+Background {
+  skyColor [
+    0.4 0.7 1
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction 0.1 -0.5 0.3
+}
+RectangleArena {
+  floorSize 2 2
+  floorTextureUrl [
+    "textures/line.png"
+  ]
+  floorTileSize 2 2.1
+}
+Solid {
+  translation 0 0 -0.4
+  scale 2 2 2
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+        }
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+Solid {
+  translation -0.4 0 0.2
+  scale 2 2 2
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+        }
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+Solid {
+  translation 0.4 0 0
+  scale 2 2 2
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+        }
+      }
+      geometry Box {
+        size 0.1 0.1 0.1
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.1 0.1 0.1
+  }
+  physics Physics {
+  }
+}
+E-puck {
+  controller "my_controller"
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
