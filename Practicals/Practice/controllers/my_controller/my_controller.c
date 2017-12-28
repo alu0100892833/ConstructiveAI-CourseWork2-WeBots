@@ -11,6 +11,7 @@
  * <webots/differential_wheels.h>, etc.
  */
 #include <stdio.h>
+#include <math.h>
  
 #include <webots/robot.h>
 #include <webots/differential_wheels.h>
@@ -25,8 +26,17 @@
 #define GS_COUNT 3
 #define PS_COUNT 8
 #define BLACK_MAX 500
+#define STOP 0
+
+#define TRUE 1
+#define FALSE 0
 
 #define MAX_SPEED 1000
+#define MAX_BATTERY 500
+#define MIN_BATTERY 0
+#define BATTERY_PERCENTAGE_ALERT 0.4
+#define BATTERY_DECAY 1
+#define BATTERY_CHARGE 1
 #define LED_COUNT 10
 
 #define AVOID_PROX_0 150
@@ -42,10 +52,12 @@ static WbDeviceTag proximity_sensors[PS_COUNT];
 static WbDeviceTag ground_sensors[GS_COUNT];
 static double gs_vals[GS_COUNT];
 static double ps_vals[PS_COUNT];
+static double battery;
 
 
 void epuck_init()
 {
+  battery = MAX_BATTERY;
   int i;
   // initialise LEDs
   char ledname[5] = "led0";
@@ -89,21 +101,20 @@ void read_sensors() {
     gs_vals[i]=wb_distance_sensor_get_value(ground_sensors[i]);
   for (i = 0; i < PS_COUNT; i++) {
     ps_vals[i] = wb_distance_sensor_get_value(proximity_sensors[i]);
-    printf("Value for ps%d: %f", i, ps_vals[i]);
   }
 }
 
 
 void line_follow_motor_values(double *left, double *right) {
   if (gs_vals[0] < BLACK_MAX) {
-    *left = MAX_SPEED * 0.1;
-    *right = MAX_SPEED * 0.7;
-  } else if (gs_vals[2] < BLACK_MAX) {
-    *left = MAX_SPEED * 0.7;
+    *left = MAX_SPEED * 0.01;
     *right = MAX_SPEED * 0.1;
+  } else if (gs_vals[2] < BLACK_MAX) {
+    *left = MAX_SPEED * 0.1;
+    *right = MAX_SPEED * 0.01;
   } else {
-    *left = MAX_SPEED * 0.8;
-    *right = MAX_SPEED * 0.8;
+    *left = MAX_SPEED * 0.5;
+    *right = MAX_SPEED * 0.5;
   }
 }
 
@@ -127,6 +138,17 @@ void object_avoidance_motor_values(double *left, double *right) {
   else if (ps_vals[5] > AVOID_PROX_5)
       *right = 0; // turn right slowly
 }
+
+int is_object_around() {
+  if (ps_vals[0] > AVOID_PROX_0 || ps_vals[7] > AVOID_PROX_7
+        || ps_vals[1] > AVOID_PROX_1 || ps_vals[6] > AVOID_PROX_6
+        || ps_vals[2] > AVOID_PROX_2 || ps_vals[5] > AVOID_PROX_5) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
 
 
 /*
@@ -153,18 +175,31 @@ int main(int argc, char **argv)
    * and leave the loop when the simulation is over
    */
   while (wb_robot_step(TIME_STEP) != -1) {
+  
+    if (battery <= MIN_BATTERY) {
+      printf("Robot dying\n");
+      wb_differential_wheels_set_speed(STOP, STOP);
+      break;
+    }
     
     /* 
      * Read the sensors :
      * Enter here functions to read sensor data, like:
      *  double val = wb_distance_sensor_get_value(my_sensor);
      */
-     read_sensors();
+    read_sensors();
 
     /* Process sensor data here */
     double left, right;
-    line_follow_motor_values(&left, &right);
-    object_avoidance_motor_values(&left, &right);
+    //line_follow_motor_values(&left, &right);
+    if (battery > BATTERY_PERCENTAGE_ALERT * MAX_BATTERY) {
+      object_avoidance_motor_values(&left, &right);
+    } else {
+      if (is_object_around() == TRUE)
+        object_avoidance_motor_values(&left, &right);
+      else
+        line_follow_motor_values(&left, &right);
+    }
 
     /*
      * Enter here functions to send actuator commands, like:
@@ -172,6 +207,16 @@ int main(int argc, char **argv)
      */
     wb_differential_wheels_set_speed(left, right);    
     wb_led_set(leds[1], 1);
+    
+    if ((gs_vals[0] < BLACK_MAX)||(gs_vals[2] < BLACK_MAX)) {
+      battery += BATTERY_CHARGE;
+      if (battery > MAX_BATTERY)
+        battery = MAX_BATTERY;
+    } else {
+      battery -= BATTERY_DECAY * (fmax(right, left) / MAX_SPEED);
+    }
+    
+    printf("Battery status: %f\n", battery);
   };
   
   /* Enter your cleanup code here */
