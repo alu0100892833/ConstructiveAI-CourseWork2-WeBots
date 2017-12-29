@@ -1,0 +1,25 @@
+#VRML_SIM V8.6 utf8
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.69310328 0.69310328 0.19802951 0.75
+  position 1.2 1.6 2.3
+}
+Background {
+  skyColor [
+    0.4 0.7 1
+  ]
+}
+DirectionalLight {
+  ambientIntensity 1
+  direction 0.1 -0.5 0.3
+}
+RectangleArena {
+}
+E-puck {
+  controller "wall_following"
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
