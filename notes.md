@@ -12,6 +12,11 @@
 
 ---
 
+### GARBAGE-COLLECTION ROBOT
+
+* Placing cans for the garbage.
+* 
+
 
 
 

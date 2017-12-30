@@ -1,0 +1,68 @@
+#VRML_SIM V8.6 utf8
+WorldInfo {
+  info [
+    "The model of the E-puck robot"
+  ]
+  title "E-puck simulation"
+}
+Viewpoint {
+  orientation 0.1576467 0.92872112 0.33559587 3.9366226
+  position -2.7704889 2.883861 -2.21644
+  follow "e-puck"
+}
+Background {
+  skyColor [
+    0.4 0.7 1
+  ]
+}
+PointLight {
+  ambientIntensity 1
+  intensity 0.6
+  location 0.14 0.6 -0.55
+  castShadows TRUE
+}
+PointLight {
+  ambientIntensity 1
+  intensity 0.6
+  location -0.43 0.6 0.5
+}
+RectangleArena {
+  contactMaterial "floor"
+  floorSize 2 2
+}
+Can {
+  translation -0.8 0.06 0.5
+  mass 0.01
+}
+Can {
+  translation 0.8 0.06 0.5
+  mass 0.01
+}
+Can {
+  translation 0.6 0.06 0.4
+  mass 0.01
+}
+Can {
+  translation 0.6 0.06 0.7
+  mass 0.01
+}
+Can {
+  translation 0.6 0.06 -0.5
+  mass 0.01
+}
+Can {
+  translation -0.3 0.06 0
+  mass 0.01
+}
+Can {
+  translation 0.1 0.06 -0.5
+  mass 0.01
+}
+Can {
+  translation 0 0.06 0.5
+  mass 0.01
+}
+E-puck {
+  rotation 0 1 0 1.57
+  controller "garbage_collection"
+}
