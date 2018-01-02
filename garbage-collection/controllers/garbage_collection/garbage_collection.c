@@ -1,15 +1,12 @@
 /*
- * File:          C_Controller_avoid.c
- * Date:          
- * Description:   
- * Author:        
- * Modifications: 
+ * File:          garbage_collection.c
+ * Date:          2th January 2018
+ * Description:   Controller for a garbage-collection robot
+ * Author:        Óscar Darias Plasencia, based on the wall-following controller.
+ * Modifications: Just recicled the avoiding object part, and added more subsumption levels.
  */
 
-/*
- * You may need to add include files like <webots/distance_sensor.h> or
- * <webots/differential_wheels.h>, etc.
- */
+
 #include <stdio.h>
  
 #include <webots/robot.h>
@@ -23,8 +20,10 @@
  */
 #define TIME_STEP 64
 
-#define MAX_SPEED 1000
-#define LED_COUNT 10
+#define TRUE 1
+#define FALSE 0
+
+#define MAX_SPEED 800
 #define PS_COUNT 8
 #define GS_COUNT 3
 #define BLACK_MAX 500
@@ -32,28 +31,42 @@
 #define AVOID_PROX_0 150
 #define AVOID_PROX_1 100
 #define AVOID_PROX_2 200
-#define AVOID_PROX_5 AVOID_PROX_0
+#define AVOID_PROX_3 220
+#define AVOID_PROX_4 AVOID_PROX_3
+#define AVOID_PROX_5 AVOID_PROX_2
 #define AVOID_PROX_6 AVOID_PROX_1
-#define AVOID_PROX_7 AVOID_PROX_2
+#define AVOID_PROX_7 AVOID_PROX_0
+
+#define PUSHING_THRESHOLD 150
+#define OBJECT_DETECTION_THRESHOLD 80
+#define TURNAROUND_COUNTER 20
 
 
-static WbDeviceTag leds[LED_COUNT];
+/**
+* Some global variables.
+*/
+//static WbDeviceTag leds[LED_COUNT];
 static WbDeviceTag proximity_sensors[PS_COUNT];
 static double ps_val[PS_COUNT];
 static WbDeviceTag ground_sensors[GS_COUNT];
 static double gs_val[GS_COUNT];
+static int turning_around;
 
 
+/**
+* This method initialises all sensors of the robot.
+*/
 void epuck_init()
 {
   int i;
+  turning_around = FALSE;
   // initialise LEDs
-  char ledname[5] = "led0";
+  /*char ledname[5] = "led0";
   for (i=0; i<LED_COUNT; i++) {
     ledname[3] = '0' + i;
     printf("Initialising %s\n", ledname);
     leds[i] = wb_robot_get_device(ledname);
-  }
+  }*/
 
   // initialise proxmity sensors
   char proxname[5] = "ps0";
@@ -75,8 +88,8 @@ void epuck_init()
     // Check to see if device is a ground sensor
     const char *nm = wb_device_get_name(dev);
 	// NB Webots8: In the next line you will need change "wb_device_get_type" to "wb_device_get_node_type"
-    WbNodeType type = wb_device_get_type(dev);
-    if(type==WB_NODE_DISTANCE_SENSOR && nm[0]=='g' && nm[1]=='s') {
+    WbNodeType type = wb_device_get_node_type(dev);
+    if(type == WB_NODE_DISTANCE_SENSOR && nm[0]=='g' && nm[1]=='s') {
       int idx = nm[2] - '0';
       if (idx>=0 && idx<GS_COUNT) { // we expect 3 ground sensors
         printf("Initialising %s\n", nm);
@@ -88,38 +101,51 @@ void epuck_init()
 }
 
 
-void read_sensors()
-{
+/**
+* Read the information of all sensors and save that information on their corresponding array.
+*/
+void read_sensors() {
   int i;
-  for (i=0; i<PS_COUNT ; i++)
+  for (i=0; i<PS_COUNT; i++)
     ps_val[i] = wb_distance_sensor_get_value(proximity_sensors[i]);
-  for (i=0; i<GS_COUNT ; i++)
+  for (i=0; i<GS_COUNT; i++)
     gs_val[i] = wb_distance_sensor_get_value(ground_sensors[i]);
 }
 
-
-void line_follow_motor_values(double *left, double *right) {
-  if (gs_val[0] < BLACK_MAX) {
-    *left = MAX_SPEED * 0.1;
-    *right = MAX_SPEED * 0.7;
+/**
+* Checks if there is an object in front of the robot.
+* Returns TRUE macro if there is, FALSE if there is not. 
+*/
+int is_there_an_obstacle() {
+  if (ps_val[0] > AVOID_PROX_0 || ps_val[7] > AVOID_PROX_7
+        /*|| ps_val[1] > AVOID_PROX_1 || ps_val[6] > AVOID_PROX_6
+        || ps_val[2] > AVOID_PROX_2 || ps_val[5] > AVOID_PROX_5*/) {
+    return TRUE;
   }
-  else if (gs_val[2] < BLACK_MAX) {
-    *left = MAX_SPEED * 0.7;
-    *right = MAX_SPEED * 0.1;
-  }
-  else {
-    *left = MAX_SPEED * 0.5;
-    *right = MAX_SPEED * 0.5;
-  }
+  return FALSE;
 }
 
 
+/*
+* Checks if the robot is stuck in a corner. First level of the subsumption architecture design.
+*/
+int stuck_in_a_corner() {
+  if (ps_val[0] > AVOID_PROX_0 && ps_val[7] > AVOID_PROX_7)
+    return TRUE;
+  return FALSE;
+}
+
+/*
+* Function from the original controller, given by the professor. 
+* Reused for 2 of the subsumption architecture design.
+* It avoids impacting an obstacle.
+*/
 void avoid_motor_values(double *left, double *right) {
   // Default values
   *left = MAX_SPEED * 0.8;
   *right = MAX_SPEED * 0.8;
   if (ps_val[0] > AVOID_PROX_0 || ps_val[7] > AVOID_PROX_7) {
-    // Objct detected ahead, but is it more left, or more right?
+    // Object detected ahead, but is it more left, or more right?
     if (ps_val[0] > ps_val[7]) // More on FR sensor
       *left = -MAX_SPEED * 0.8; // turn left
     else
@@ -135,6 +161,86 @@ void avoid_motor_values(double *left, double *right) {
       *right = 0; // turn right slowly
 }
 
+/*
+* Check if the specified sensor is detecting the highest proximity value.
+*/
+int max_proximity_metric(int sensor) {
+  int i;
+  for (i = 0; i < PS_COUNT; i++) {
+    if (i != sensor && ps_val[sensor] < ps_val[i])
+      return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+* Checks if the robot is pushing garbage. Compares both front sensors with a pushing threshold (big value)
+*/
+int is_pushing_garbage() {
+	if (ps_val[0] > PUSHING_THRESHOLD || ps_val[7] > PUSHING_THRESHOLD)
+		return TRUE;
+	return FALSE;
+}
+
+
+/*
+* Once checked that it is pushing garbage, follow it by balancing both front sensors.
+*/
+void push_garbage_motor_values(double *left, double *right) {
+	if (ps_val[0] > ps_val[7]) {
+		*right = MAX_SPEED * 0.4;
+		*left = MAX_SPEED * 0.7;
+	} else if (ps_val[0] < ps_val[7]) {
+		*left = MAX_SPEED * 0.4;
+		*right = MAX_SPEED * 0.7;
+	} else {
+		*left = MAX_SPEED;
+		*right = MAX_SPEED;
+	}
+}
+
+
+/**
+* Wanders around, being attracted by higher values of the proximity sensors.
+*/
+void look_for_garbage(double *left, double *right) {
+	int i;
+	*left = MAX_SPEED;
+	*right = MAX_SPEED;
+	for (i = 0; i < PS_COUNT; i++) {
+		if (max_proximity_metric(i) == TRUE && ps_val[i] > OBJECT_DETECTION_THRESHOLD) {
+			switch (i) {
+				case 0 : *right = MAX_SPEED * 0.8; break;
+    			case 1 : *right = MAX_SPEED * 0.5; break;
+    			case 2 : *right = MAX_SPEED * 0.1; break;
+    			case 5 : *left = MAX_SPEED * 0.1; break;
+    			case 6 : *left = MAX_SPEED * 0.5; break;
+    			case 7 : *left = MAX_SPEED * 0.8; break;
+			}
+		}
+	}
+}
+
+/*
+* Checks if the robot is off-limits or in garbage disposal area (black floor)
+*/
+int touched_wall() {
+	if (gs_val[0] < BLACK_MAX || gs_val[1] < BLACK_MAX || gs_val[2] < BLACK_MAX) {
+			turning_around = TURNAROUND_COUNTER;
+			return TRUE;
+	}
+	return FALSE;
+}
+
+/*
+* Decreases the turn around counter and continues turning.
+* Once the counter reaches 0 (FALSE) the robot stops turning.
+*/
+void turn_around(double *left, double *right) {
+	turning_around--;
+	*right = 0;
+	*left = MAX_SPEED;
+}
 
 /*
  * This is the main program.
@@ -162,13 +268,23 @@ int main(int argc, char **argv)
 
     /* Process sensor data here */
     double left, right;
-    avoid_motor_values(&left, &right);
 
+    if (turning_around != FALSE) {
+    	turn_around(&left, &right);
+    } else if (touched_wall() == TRUE) {
+    	turn_around(&left, &right);
+    } else if (is_pushing_garbage() == TRUE) {
+    	push_garbage_motor_values(&left, &right);
+    } else {
+    	look_for_garbage(&left, &right);
+    }
+
+    
     /*
      * Enter here functions to send actuator commands
      */
-    wb_differential_wheels_set_speed(1000.0, 1000.0);    
-    wb_led_set(leds[1],1);
+    wb_differential_wheels_set_speed(left, right);    
+    //wb_led_set(leds[1],1);
   };
   
   /* Enter your cleanup code here */

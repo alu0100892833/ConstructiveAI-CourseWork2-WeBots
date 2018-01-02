@@ -6,8 +6,8 @@ WorldInfo {
   title "E-puck simulation"
 }
 Viewpoint {
-  orientation 0.1576467 0.92872112 0.33559587 3.9366226
-  position -2.7704889 2.883861 -2.21644
+  orientation -0.21725033 0.94749546 0.23463725 1.6607275
+  position 2.5273233 1.1754187 -0.10752979
   follow "e-puck"
 }
 Background {
@@ -29,13 +29,17 @@ PointLight {
 RectangleArena {
   contactMaterial "floor"
   floorSize 2 2
+  floorTextureUrl [
+    "textures/black-border.png"
+  ]
+  floorTileSize 2 2
 }
 Can {
-  translation -0.8 0.06 0.5
+  translation -0.3 0.06 0.5
   mass 0.01
 }
 Can {
-  translation 0.8 0.06 0.5
+  translation 0.3 0.06 0.5
   mass 0.01
 }
 Can {
@@ -43,7 +47,7 @@ Can {
   mass 0.01
 }
 Can {
-  translation 0.6 0.06 0.7
+  translation 0.6 0.06 0.1
   mass 0.01
 }
 Can {
@@ -51,7 +55,7 @@ Can {
   mass 0.01
 }
 Can {
-  translation -0.3 0.06 0
+  translation -0.4 0.06 0.06
   mass 0.01
 }
 Can {
@@ -59,10 +63,14 @@ Can {
   mass 0.01
 }
 Can {
-  translation 0 0.06 0.5
+  translation 0 0.06 0.3
   mass 0.01
 }
 E-puck {
   rotation 0 1 0 1.57
   controller "garbage_collection"
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
 }
