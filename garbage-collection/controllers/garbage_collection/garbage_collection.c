@@ -188,11 +188,11 @@ int is_pushing_garbage() {
 */
 void push_garbage_motor_values(double *left, double *right) {
 	if (ps_val[0] > ps_val[7]) {
-		*right = MAX_SPEED * 0.4;
-		*left = MAX_SPEED * 0.7;
-	} else if (ps_val[0] < ps_val[7]) {
-		*left = MAX_SPEED * 0.4;
 		*right = MAX_SPEED * 0.7;
+		*left = MAX_SPEED * 0.9;
+	} else if (ps_val[0] < ps_val[7]) {
+		*left = MAX_SPEED * 0.7;
+		*right = MAX_SPEED * 0.9;
 	} else {
 		*left = MAX_SPEED;
 		*right = MAX_SPEED;
@@ -210,12 +210,12 @@ void look_for_garbage(double *left, double *right) {
 	for (i = 0; i < PS_COUNT; i++) {
 		if (max_proximity_metric(i) == TRUE && ps_val[i] > OBJECT_DETECTION_THRESHOLD) {
 			switch (i) {
-				case 0 : *right = MAX_SPEED * 0.8; break;
-    			case 1 : *right = MAX_SPEED * 0.5; break;
+				case 0 : *right = MAX_SPEED * 0.6; break;
+    			case 1 : *right = MAX_SPEED * 0.3; break;
     			case 2 : *right = MAX_SPEED * 0.1; break;
     			case 5 : *left = MAX_SPEED * 0.1; break;
-    			case 6 : *left = MAX_SPEED * 0.5; break;
-    			case 7 : *left = MAX_SPEED * 0.8; break;
+    			case 6 : *left = MAX_SPEED * 0.3; break;
+    			case 7 : *left = MAX_SPEED * 0.6; break;
 			}
 		}
 	}

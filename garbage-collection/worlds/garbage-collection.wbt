@@ -7,7 +7,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.21725033 0.94749546 0.23463725 1.6607275
-  position 2.5273233 1.1754187 -0.10752979
+  position 1.9003465 0.85162341 -0.086484344
   follow "e-puck"
 }
 Background {
