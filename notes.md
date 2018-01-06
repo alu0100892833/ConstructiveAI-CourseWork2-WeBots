@@ -15,7 +15,7 @@
 ### GARBAGE-COLLECTION ROBOT
 
 * Placing cans for the garbage.
-* 
+* No way to differ when the robot is stopped and when is moving, so touching the wall with the cans is not an option. Made a black line around the border so I could use ground sensors for that. 
 
 
 
