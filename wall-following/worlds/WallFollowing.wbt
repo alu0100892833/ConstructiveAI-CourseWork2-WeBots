@@ -2,8 +2,8 @@
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.69310328 0.69310328 0.19802951 0.75
-  position 1.2 1.6 2.3
+  orientation -0.090261497 -0.91937991 -0.38287524 2.7305936
+  position -0.60282975 1.355978 -1.3238665
 }
 Background {
   skyColor [
@@ -16,8 +16,30 @@ DirectionalLight {
 }
 RectangleArena {
 }
+OilBarrel {
+  translation 0 0.05 0.45
+  height 0.1
+  radius 0.04
+}
+OilBarrel {
+  translation -0.45 0.05 0.45
+  height 0.1
+  radius 0.04
+}
 E-puck {
+  rotation 0 1 0 -1.4398997
   controller "wall_following"
+  name "e-puck-1"
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
+E-puck {
+  translation 0.1 0 0.1
+  rotation 0 1 0 0.78539969
+  controller "wall_following"
+  name "e-puck-1"
   groundSensorsSlot [
     E-puckGroundSensors {
     }

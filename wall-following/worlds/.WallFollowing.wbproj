@@ -9,4 +9,5 @@ orthographicViewHeight: 1
 textFiles: 2 "../Practicals/Practice/controllers/my_controller/my_controller.c" "../../../../../../../../../Applications/Webots.app/projects/robots/e-puck/controllers/e-puck_avoid_obstacles/e-puck_avoid_obstacles.c" "controllers/wall_following/wall_following.c"
 documentationBook: 
 documentationPage: 
-renderingDevicePerspectives: 329;1;1;0.0152941;0.0183299
+renderingDevicePerspectives: 363;1;1;0.0203125;0.025
+renderingDevicePerspectives: 722;1;1;0;0

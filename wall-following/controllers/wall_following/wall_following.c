@@ -27,6 +27,7 @@
 #define WALL_RIGHT 7
 #define NOT_FOLLOWING_WALL 9
 #define ITERATIONS_TO_LOOSE_WALL 40
+#define TURNING_ITERATIONS 5
 
 #define MAX_SPEED 1000
 #define LED_COUNT 10
@@ -54,6 +55,8 @@ static WbDeviceTag ground_sensors[GS_COUNT];
 static double gs_val[GS_COUNT];
 static int following;     // this variable specifies if the robot has been following a wall (WALL_LEFT if it had the wall on the left, WALL_RIGHT the opposite and NOT_FOLLOWING_WALL if neither)
 static int wall_following_counter;    // robot might get lost for a couple of iterations, but it might still be following a wall. This variable is a counter for the number of iterations before considering that the robot is no longer following a wall
+static int turning_counter;
+static char turning_direction;
 
 
 /**
@@ -122,12 +125,12 @@ void read_sensors() {
 * Returns TRUE macro if there is, FALSE if there is not. 
 */
 int is_there_an_obstacle() {
-  if (ps_val[0] > AVOID_PROX_0 || ps_val[7] > AVOID_PROX_7
+  	if (ps_val[0] > AVOID_PROX_0 || ps_val[7] > AVOID_PROX_7
         /*|| ps_val[1] > AVOID_PROX_1 || ps_val[6] > AVOID_PROX_6
         || ps_val[2] > AVOID_PROX_2 || ps_val[5] > AVOID_PROX_5*/) {
-    return TRUE;
-  }
-  return FALSE;
+    	return TRUE;
+  	}
+  	return FALSE;
 }
 
 /*
@@ -136,25 +139,25 @@ int is_there_an_obstacle() {
 * If the sensors do not return the expected results, then the wall following counter is decreased.
 */
 int is_following_a_wall() {
-  if (max_proximity_metric(2) == TRUE && ps_val[2] > AVOID_PROX_2) {
-    following = WALL_RIGHT;
-    wall_following_counter = ITERATIONS_TO_LOOSE_WALL;
-    return TRUE;
-  } else if (max_proximity_metric(5) == TRUE && ps_val[5] > AVOID_PROX_5) {
-    following = WALL_LEFT;
-    wall_following_counter = ITERATIONS_TO_LOOSE_WALL;
-    return TRUE;
-  } else {
-    wall_following_counter -= 1;
-    return FALSE;
-  }
+  	if (max_proximity_metric(2) == TRUE && ps_val[2] > AVOID_PROX_2) {
+    	following = WALL_RIGHT;
+    	wall_following_counter = ITERATIONS_TO_LOOSE_WALL;
+    	return TRUE;
+  	} else if (max_proximity_metric(5) == TRUE && ps_val[5] > AVOID_PROX_5) {
+    	following = WALL_LEFT;
+    	wall_following_counter = ITERATIONS_TO_LOOSE_WALL;
+    	return TRUE;
+  	} else {
+    	wall_following_counter -= 1;
+    	return FALSE;
+  	}
 }
 
 /*
 * Checks if the robot is stuck in a corner. First level of the subsumption architecture design.
 */
 int stuck_in_a_corner() {
-  if (ps_val[0] > AVOID_PROX_0 && ps_val[7] > AVOID_PROX_7)
+  if (ps_val[0] > AVOID_PROX_0 && ps_val[7] > AVOID_PROX_7 /*&& ps_val[1] > AVOID_PROX_1 && ps_val[6] > AVOID_PROX_6*/)
     return TRUE;
   return FALSE;
 }
@@ -219,16 +222,19 @@ void look_for_a_wall(double *left, double *right) {
 
 /*
 * If stuck in a corner, this function allows to escape.
-* Checks the wall that the robot has been following and tries to escape the same direction.
+* Checks which side of the robot has the biggest proximity value and assumes that the wall will be on that side.
 */
 void escape_from_corner(double *left, double *right) {
-  if (following == WALL_LEFT) {
-    *right = -MAX_SPEED;
-    *left = MAX_SPEED;
-  } else {
-    *right = MAX_SPEED;
-    *left = -MAX_SPEED;
-  }
+	turning_counter--;
+	int left_value = ps_val[7] + ps_val[6] + ps_val[5];
+	int right_value = ps_val[0] + ps_val[1] + ps_val[2];
+	if (left_value > right_value) {
+		*right = -MAX_SPEED;
+    	*left = MAX_SPEED;
+	} else {
+		*right = MAX_SPEED;
+    	*left = -MAX_SPEED;
+	}
 }
 
 /*
@@ -258,16 +264,18 @@ int main(int argc, char **argv)
     /* Process sensor data here */
     double left, right;
 
-    /* Level 1 ----> avoid getting stuck in a corner */
-    if (stuck_in_a_corner() == TRUE) {
-      escape_from_corner(&left, &right);
+    if (turning_counter != FALSE) {				  /* If it was turning, continue with that */
+    	escape_from_corner(&left, &right);
+    } else if (stuck_in_a_corner() == TRUE) {     /* Level 1 ----> avoid getting stuck in a corner */
+    	turning_counter = TURNING_ITERATIONS;
+      	escape_from_corner(&left, &right);
     } else if (is_there_an_obstacle() == TRUE) {  /* Level 2 ----> avoid obstacles */
-      avoid_motor_values(&left, &right);
+      	avoid_motor_values(&left, &right);
     } else if (is_following_a_wall() == FALSE) {  /* Level 3 ----> make sure that it is following a wall */
-      look_for_a_wall(&left, &right);
+      	look_for_a_wall(&left, &right);
     } else {                                      /* Level 4 ----> just continue in a straight line */
-      left = MAX_SPEED;
-      right = MAX_SPEED;
+      	left = MAX_SPEED;
+      	right = MAX_SPEED;
     }
 
     /* In case the robot has been "lost" for too many iterations, then we can declare that it is no longer following any wall */
