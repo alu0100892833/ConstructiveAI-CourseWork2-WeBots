@@ -1,24 +1,23 @@
-# TESTING WALL-FOLLOWING ROBOT
+# CONSTRUCTING AUTONOMOUS SYSTEMS
+######<center> Constructive Artificial Intelligence, 2017-2018 </center> 
 
-### SIMPLE TEST
+<br><br>
 
+## INTRODUCTION
 
+In this paper, we are going to describe the implementation and testing of three different autonomous systems. These were constructed using an e-puck robot and a controller for that robot, written in the C programming language. We will take advantage of the sensors of the robot, more specifically the light sensors, ground sensors and proximity sensors, to transform these simple robots into more complex autonomous systems. 
 
----
+First, we are going to explain the implementation and control architecture used. After that, we are going to describe the testing environments and the results obtained.
 
-### COMPLEX TEST
+The autonomous systems will have the following purposes:
 
-* Just three cases in three tests (all of them in the second one), a robot lost track of the wall when avoiding an object and not being bothered by the other robot.
+* A wall-following robot.
+* A garbage-collector robot.
+* A robot with a motivated architecture that uses a simulated physiology of homeostatically controlled variables, as well as appropriate motivations and behaviours to solve a two-resource problem. This will be described in more detail in its corresponding section.
 
+<div style="page-break-after: always;"></div>
 
-
-
-
-
-
----
-
-### REPORT
+## WALL-FOLLOWING ROBOT
 
 #### IMPLEMENTATION
 
@@ -29,9 +28,9 @@ The first robot is programmed to find a wall and follow it indefinitely. For tha
 3. Avoid every obstacle in the way, trying not to loose the wall in the process.
 4. Avoid getting stuck on corners.
 
-![](WallFollowingDiagram.jpg)
+![](images/WallFollowingDiagram.jpg)
 
-Subsumption architectures are a type of reactive control architectures used in embodied AI that decomposes the complete behaviour of the robot in a series of sub-behaviours. These sub-behaviours are organized in what are called levels of subsumption, in a way that each level implements a particular behaviour that subsumes its lower levels. Higher levels have a higher priority. 
+Subsumption architectures are a type of reactive control architectures used in embodied AI that decomposes the complete behaviour of the robot in a series of sub-behaviours. These sub-behaviours are organised in what are called levels of subsumption, in a way that each level implements a particular behaviour that subsumes its lower levels. Higher levels have a higher priority. 
 
 In the current case, the robot would just move in a straight line on ideal conditions. The level above will make sure that the robot is following a wall, overriding the "go straight" behaviour if it is not. But whether is following a wall or not, it must avoid every obstacle in its way, which the third level ensures. Lastly, a fourth and more important level was added to make sure the robot does not get stuck in corners. Those behaviours with that organisation make a robot that follows a wall.
 
@@ -62,11 +61,14 @@ For the simple test, both runs have been, as expected, extremely similar. The on
 
 The complex test also showed very good results, except for one concrete aspect: the contact of both robots when at least one of them is following the wall. At the start of each simulation, the robots ran into each other, avoiding contact successfully, but in some cases they end up having contact because they are following the wall in opposite directions, or because one of them reaches the other one from behind. In this cases, the programmed architecture makes the robot interpret that the other robot is a wall or a static obstacle, which makes each robot want to surround each other hoping to find the wall again after that. That does not work and both robots loose contact with the wall and stay in contact for a couple of seconds, before being free to look for the wall again.
 
-For the rest, the simulation was able to run smoothly. When the robots do not run into each other, they are able to follow the wall by themselves and surround every obstacle. The controller makes a robot interpret that these objects are part of the wall, because they form a corner with the wall. So the robot escapes from that corner and follows the border of the obstacle, eventually finding the other corner and continuing from the other side of the obstacle. 
+For the rest, the simulation was able to run smoothly. When the robots do not run into each other, they are able to follow the wall by themselves and surround every obstacle. The controller makes a robot interpret that these objects are part of the wall, because they form a corner with the wall. So the robot escapes from that corner and follows the border of the obstacle, eventually finding the other corner and continuing from the other side of the obstacle. In the three simulations, only three times a robot lost track of the wall when encountering an obstacle, all of them in the second simulation.
 
 This process is not 100% fluid though. The little hesitation with the corners of the wall becomes a little more noticeable with the corners formed by the wall and an obstacle, although the robot ends up describing the right trajectory. Also, the speed when surrounding the object is considerably slower. 
 
 The e-puck robot's proximity sensors are very limited. According to the documentation, they are useful for detecting objects at a distance of just 4cm or less. This is a serious bottleneck in some cases, because it removes the possibility of detecting objects with time so a plan for avoidance can be processed. This could, for example, simplify the interaction between two robots. However, the main goal of the robot is achieved successfully: follow the wall, even with obstacles. 
+
+
+
 
 
 

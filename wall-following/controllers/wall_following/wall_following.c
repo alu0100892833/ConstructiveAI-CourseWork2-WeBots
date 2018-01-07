@@ -206,6 +206,7 @@ int max_proximity_metric(int sensor) {
 */
 void look_for_a_wall(double *left, double *right) {
   int i;
+  // check which proximity sensor is detecting a higher value
   for (i = 0; i < PS_COUNT; i++)
     if (max_proximity_metric(i) == TRUE)
       break;
