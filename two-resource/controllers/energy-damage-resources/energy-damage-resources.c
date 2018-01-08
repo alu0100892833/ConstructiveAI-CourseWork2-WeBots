@@ -28,6 +28,7 @@
 
 #define BLACK_MAX 500
 #define LIGHT_UMBRAL 4000
+#define UMBRAL_ERROR 2700
 #define RECHARGE_POSITION -1
 
 #define IDEAL_ENERGY 100
@@ -63,11 +64,13 @@ static double gs_val[GS_COUNT];
 static double ps_val[PS_COUNT];
 static double ls_val[LS_COUNT];
 
+static FILE* log_file;
+
 // Homeostatically controlled variables
 // energy decays with time and speed
-static double energy;
+static float energy;
 // damage increases when the robot gets too close to an obstacle
-static double damage;
+static float damage;
 
 // These variable will have TRUE or FALSE values, acting as a memory so the robot knows that in the previous iteration was trying to recharge/repair
 static int recharging;
@@ -78,6 +81,10 @@ static int repairing;
 */
 void epuck_init() {
 	int i;
+
+	// intialise the log file with its header
+	log_file = fopen("log.csv", "w");
+	fprintf(log_file, "Iteration; Energy; Damage\n");
 
 	// initial values for the fundamental variables
 	energy = IDEAL_ENERGY;
@@ -135,6 +142,8 @@ void read_sensors() {
 }
 
 
+
+
 /**
 *
 * @return WANDER if no need of fulfill any resource needs, so wander around.
@@ -142,17 +151,18 @@ void read_sensors() {
 *		REPAIR if the robot needs to repair itself, following the line then.
 */
 int determine_behaviour() {
-
 	// if in the last iteration the robot was repairing or recharging and did not finish, continue with that
-	if (recharging != FALSE)
+	// if, when wandering, the robot ends up in the charging area or the reparation area, take advantage of that
+	if (repairing != FALSE || (gs_val[0] < BLACK_MAX && gs_val[2] < BLACK_MAX && damage > IDEAL_DAMAGE))
+		return REPAIR; 
+	if (recharging != FALSE || (max_light_metric() == RECHARGE_POSITION && energy < IDEAL_ENERGY))
 		return RECHARGE;
-	if (repairing != FALSE)
-		return REPAIR;
+	
 
-	int energy_needs = IDEAL_ENERGY - energy;
+	float energy_needs = IDEAL_ENERGY - energy;
 
 	// if no need of repairing or recharging, just wander around
-	if (damage < 60 && energy_needs < 60) {
+	if (damage < 60 && energy_needs < 50.0) {
 		return WANDER;
 	} else if (damage >= 60) {	// in case the robot needs reparation
 		if (energy_needs > CRITICAL_ENERGY_NEEDS) {   
@@ -204,7 +214,7 @@ int max_light_metric() {
 	for (i = 0; i < LS_COUNT; i++) 
 		if (ls_val[i] < ls_val[result])
 			result = i;
-	if (ls_val[result] >= LIGHT_UMBRAL)
+	if (ls_val[result] >= LIGHT_UMBRAL - UMBRAL_ERROR)
 		return RECHARGE_POSITION;
 	return result;
 }
@@ -297,7 +307,6 @@ void light_follow_motor_values(double *left, double *right) {
 */
 void recharge_robot(double *left, double *right) {
 	if (is_object_around() == TRUE) {
-		printf("Obstacle detected.\n");
 		object_avoidance_motor_values(left, right);
 	} else {
 		light_follow_motor_values(left, right);
@@ -311,8 +320,8 @@ void recharge_robot(double *left, double *right) {
 * For the rest, try to find a black area on the ground (repairing area).
 */
 void repair_robot(double *left, double *right) {
-	repairing = TRUE;
 	if (gs_val[0] < BLACK_MAX && gs_val[2] < BLACK_MAX) {
+		repairing = TRUE;
 		*left = 0;
 		*right = 0; 
 		damage -= REPARATION;
@@ -335,6 +344,7 @@ int main(int argc, char **argv)
   /* necessary to initialize webots stuff */
   wb_robot_init();
   epuck_init();
+  int iteration = 0;
 
   /* main loop
    * Perform simulation steps of TIME_STEP milliseconds
@@ -383,9 +393,8 @@ int main(int argc, char **argv)
     if (there_is_impact() == TRUE)
     	damage += IMPACT_DAMAGE;
 
-    // show status
-    printf("\nENERGY: %f\n", energy);
-    printf("DAMAGES: %f\n", damage);
+    // log status
+    fprintf(log_file, "%d; %f; %f\n", iteration, energy, damage);
 
     // check if the robot ran out of energy
     if (energy <= FATAL_ENERGY) {
@@ -401,9 +410,11 @@ int main(int argc, char **argv)
     	break;
     }
 
+    iteration++;
   };
 
   /* Enter your cleanup code here */
+  fclose(log_file);
 
   /* This is necessary to cleanup webots resources */
   wb_robot_cleanup();

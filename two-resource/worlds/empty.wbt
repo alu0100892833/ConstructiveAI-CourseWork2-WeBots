@@ -2,8 +2,8 @@
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.96900316 0.2280459 0.095015528 0.74234268
-  position 0.436985 1.5246431 1.669025
+  orientation -0.95408774 0.28386848 0.095578577 0.607622
+  position 0.61017058 1.7958746 2.633533
 }
 Background {
   skyColor [
@@ -16,6 +16,25 @@ RectangleArena {
     "textures/two-resource-ground.png"
   ]
   floorTileSize 2 2
+}
+E-puck {
+  translation 0.6 0 -0.3
+  rotation 0 1 0 0.91629969
+  controller "energy-damage-resources-nolog"
+  name "e-puck-1"
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
+E-puck {
+  translation 0.1 0 0.4
+  controller "energy-damage-resources-nolog"
+  name "e-puck-1"
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
 }
 DirectionalLight {
   direction 0 -1 0
@@ -68,6 +87,7 @@ OilBarrel {
 }
 E-puck {
   controller "energy-damage-resources"
+  name "e-puck-1"
   groundSensorsSlot [
     E-puckGroundSensors {
     }
