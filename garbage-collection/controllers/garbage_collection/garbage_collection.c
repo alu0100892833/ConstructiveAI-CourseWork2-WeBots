@@ -23,7 +23,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define MAX_SPEED 800
+#define MAX_SPEED 1000
 #define PS_COUNT 8
 #define GS_COUNT 3
 #define BLACK_MAX 500
