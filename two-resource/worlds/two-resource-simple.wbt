@@ -1,0 +1,80 @@
+#VRML_SIM V8.6 utf8
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.95408774 0.28386848 0.095578577 0.607622
+  position 0.61017058 1.7958746 2.633533
+}
+Background {
+  skyColor [
+    0.4 0.7 1
+  ]
+}
+RectangleArena {
+  floorSize 2 2
+  floorTextureUrl [
+    "textures/two-resource-ground.png"
+  ]
+  floorTileSize 2 2
+}
+DirectionalLight {
+  direction 0 -1 0
+  intensity 0.3
+}
+OilBarrel {
+  translation -0.3 0 0.45
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation -0.2 0 -0.4
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation 0.4 0 0
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation 0.3 0 -0.7
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation 0.1 0 -0.2
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation -0.6 0 -0.4
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation -0.4 0 0.1
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation 0.3 0 0.5
+  height 0.2
+  radius 0.1
+}
+OilBarrel {
+  translation 0 0 0.6
+  height 0.2
+  radius 0.1
+}
+E-puck {
+  controller "energy-damage-resources"
+  name "e-puck-1"
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
+PointLight {
+  attenuation 1 0.1 0.1
+  location -0.8 0.3 -0.8
+}

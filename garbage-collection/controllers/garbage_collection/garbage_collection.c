@@ -39,18 +39,18 @@
 
 #define PUSHING_THRESHOLD 150
 #define OBJECT_DETECTION_THRESHOLD 80
-#define TURNAROUND_COUNTER 20
+#define TURNAROUND_COUNTER 10
 
 
 /**
 * Some global variables.
 */
-//static WbDeviceTag leds[LED_COUNT];
 static WbDeviceTag proximity_sensors[PS_COUNT];
 static double ps_val[PS_COUNT];
 static WbDeviceTag ground_sensors[GS_COUNT];
 static double gs_val[GS_COUNT];
-static int turning_around;
+static int turning_around_left;
+static int turning_around_right;
 
 
 /**
@@ -59,14 +59,8 @@ static int turning_around;
 void epuck_init()
 {
   int i;
-  turning_around = FALSE;
-  // initialise LEDs
-  /*char ledname[5] = "led0";
-  for (i=0; i<LED_COUNT; i++) {
-    ledname[3] = '0' + i;
-    printf("Initialising %s\n", ledname);
-    leds[i] = wb_robot_get_device(ledname);
-  }*/
+  turning_around_left = FALSE;
+  turning_around_right = FALSE;
 
   // initialise proxmity sensors
   char proxname[5] = "ps0";
@@ -226,7 +220,10 @@ void look_for_garbage(double *left, double *right) {
 */
 int touched_wall() {
 	if (gs_val[0] < BLACK_MAX || gs_val[1] < BLACK_MAX || gs_val[2] < BLACK_MAX) {
-			turning_around = TURNAROUND_COUNTER;
+			if (gs_val[2] > gs_val[0])
+        turning_around_left = TURNAROUND_COUNTER;
+      else
+        turning_around_right= TURNAROUND_COUNTER;
 			return TRUE;
 	}
 	return FALSE;
@@ -237,9 +234,15 @@ int touched_wall() {
 * Once the counter reaches 0 (FALSE) the robot stops turning.
 */
 void turn_around(double *left, double *right) {
-	turning_around--;
-	*right = 0;
-	*left = MAX_SPEED;
+  if (turning_around_left > FALSE) {
+    turning_around_left--;
+    *right = -MAX_SPEED;
+    *left = 0;
+  } else {
+    turning_around_right--;
+    *left = -MAX_SPEED;
+    *right = 0;
+  }
 }
 
 /*
@@ -269,7 +272,7 @@ int main(int argc, char **argv)
     /* Process sensor data here */
     double left, right;
 
-    if (turning_around != FALSE) {
+    if (turning_around_left != FALSE || turning_around_right != FALSE) {
     	turn_around(&left, &right);
     } else if (touched_wall() == TRUE) {
     	turn_around(&left, &right);
@@ -284,7 +287,6 @@ int main(int argc, char **argv)
      * Enter here functions to send actuator commands
      */
     wb_differential_wheels_set_speed(left, right);    
-    //wb_led_set(leds[1],1);
   };
   
   /* Enter your cleanup code here */

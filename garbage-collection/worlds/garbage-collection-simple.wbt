@@ -7,7 +7,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.73011087 -0.65246768 -0.20303706 0.84964792
-  position -1.1591384 1.5966711 2.2245917
+  position -1.2443275 1.7116382 2.355233
   follow "e-puck"
 }
 Background {
@@ -30,24 +30,9 @@ RectangleArena {
   contactMaterial "floor"
   floorSize 2 2
   floorTextureUrl [
-    "textures/black-border.png"
+    "textures/black-border-simple.png"
   ]
   floorTileSize 2 2
-}
-OilBarrel {
-  translation -0.2 0 -0.07
-  height 0.3
-  radius 0.07
-}
-OilBarrel {
-  translation 0.25 0 0.44
-  height 0.3
-  radius 0.07
-}
-OilBarrel {
-  translation 0.34 0 -0.33
-  height 0.3
-  radius 0.07
 }
 Can {
   translation -0.3 0.06 0.5
@@ -83,24 +68,6 @@ Can {
 }
 E-puck {
   rotation 0 1 0 1.57
-  controller "garbage_collection"
-  groundSensorsSlot [
-    E-puckGroundSensors {
-    }
-  ]
-}
-E-puck {
-  translation 0.6 0 0.6
-  rotation 0 1 0 1.57
-  controller "garbage_collection"
-  groundSensorsSlot [
-    E-puckGroundSensors {
-    }
-  ]
-}
-E-puck {
-  translation -0.5 0 0.1
-  rotation 0 1 0 2.8789997
   controller "garbage_collection"
   groundSensorsSlot [
     E-puckGroundSensors {
