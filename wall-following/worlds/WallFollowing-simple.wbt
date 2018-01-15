@@ -3,7 +3,8 @@ WorldInfo {
 }
 Viewpoint {
   orientation -0.090261497 -0.91937991 -0.38287524 2.7305936
-  position -0.60282975 1.355978 -1.3238665
+  position -0.65431484 1.4775211 -1.432581
+  follow "e-puck-1"
 }
 Background {
   skyColor [
