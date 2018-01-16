@@ -1,6 +1,8 @@
 # REPORT
 
-### OVERVIEW
+## TWO-RESOURCE ROBOT
+
+#### IMPLEMENTATION
 
 The third and last robot will be a motivated autonomous system that can solve a "two-resource" problem. This robot has a simulated physiology with two homeostatically controlled variables: energy and damage. 
 
@@ -24,9 +26,9 @@ For convenience, when the robot finds the recharging area while trying to reach 
 The same thing happens with the reparation areas. When the robot unintentionally finds one, it will stop there for reparations even if it is trying to reach the light for recharging, because no speed means that no energy is lost. 
 
 
-### TESTING
+#### TESTING
 
-#### QUALITATIVE TESTING
+##### QUALITATIVE TESTING
 
 The tests for this controller are going to be performed, like in the two previous robots, in two different environments and several executions (runs) for each of them.
 
@@ -50,7 +52,7 @@ The reason why this is happening is pretty simple. Although every robot starts f
 In the second run, the three robots were dead at 3 minutes and 10 seconds. All of them happened to need energy almost at the same time, so they inflicted serious damage to each other, destroying one of them. After that, the next time that one robot needed energy, it found a dead robot right by the charging area, close enough to inflict damage so we had a second dead robot. And then, with two robots obstructing the recharging area, the last robot died before being able to escape. In the third run, this happened again with just two robots.
 
 
-#### QUANTITATIVE TESTING
+##### QUANTITATIVE TESTING
 
 The following tables show the evolution of the wellbeing of the robot in all the runs performed, both in the simple environment (1 and 2) and in the complex environment (1, 2 and 3).
 
@@ -79,20 +81,3 @@ The wellbeing, however, does not seem that much better in the simple environment
 Lastly, we have the physiological balance, which is slightly better in the complex environment. This, although it might seem surprising, is very normal. In a run on a simple environment, the need of reparation is very unusual when comparing with a run in the complex environment. The needs of the robot are usually focused on recharging its battery, being the needs of reparation much more uncommon; the fact that some needs are significantly higher than others is reflected in a higher value for the physiological balance.
 
 On a complex environment, on the other hand, running into other robots inflicts damage, which makes the needs of reparation much more frequent. Then, the fact that the physiological balance is better on the complex environment, does not mean that the robot "suffers" less under those circumstances. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
----

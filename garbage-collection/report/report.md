@@ -1,6 +1,6 @@
-# GARBAGE-COLLECTION ROBOT
+## GARBAGE-COLLECTION ROBOT
 
-## OVERVIEW
+#### IMPLEMENTATION
 
 The next robot is programmed to clean the arena of garbage. It searches for "garbage items" in the arena (represented with cans), and pushes it by the wall. The robot continues the process until all garbage has been cleaned. 
 
@@ -33,7 +33,7 @@ As we can see, the "AVOID OBSTACLES" level and the "DISPOSE GARBAGE" level are u
 
 
 
-## TESTING
+#### TESTING
 
 Again, we are going to test this robot using two different environments. In all of them, OilBarrel objects are going to be placed as obstacles, and the Can objects as garbage. We expect the robot (or robots) to clean the garbage by pushing it to the wall.
 
@@ -44,7 +44,7 @@ Other aspects of the simulations are similar to the ones with the previous robot
 
 Testing with the simple environment, we can observe decent results. In one of the runs, the robot was capable of cleaning all garbage before the time was up. In the other run, there were still three cans to go. 
 
-The inability to guarantee the cleanliness of all garbage does not have anything to do with any problem in the robot's basic behaviors. Once the robots finds a can, it pushes it perfectly and leaves it by the wall, turning away to continue with its duties. Considering that we are using the ground sensors to detect the disposal area, this effectiveness was expected.
+The inability to guarantee the cleanliness of all garbage does not have anything to do with any problem in the robot's basic behaviours. Once the robots finds a can, it pushes it perfectly and leaves it by the wall, turning away to continue with its duties. Considering that we are using the ground sensors to detect the disposal area, this effectiveness was expected.
 
 However, the robot is not always capable of cleaning all garbage due to the previously mentioned limitations of the proximity sensors. Detecting the cans from a distance is extremely difficult with this e-puck, so the robot needs some luck to pass near one of them. When this happens, the robot is very efficient, but when it does not, it can take some time. 
 
