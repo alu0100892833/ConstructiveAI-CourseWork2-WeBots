@@ -59,6 +59,9 @@ static int turning_around_right;
 void epuck_init()
 {
   int i;
+
+  // initialise the counters that will act as a memory for remembering
+  // that the robot was turning around (left and right)
   turning_around_left = FALSE;
   turning_around_right = FALSE;
 
@@ -181,13 +184,14 @@ int is_pushing_garbage() {
 * Once checked that it is pushing garbage, follow it by balancing both front sensors.
 */
 void push_garbage_motor_values(double *left, double *right) {
+	// the left one detected a bigger value, so turning right slightly
 	if (ps_val[0] > ps_val[7]) {
 		*right = MAX_SPEED * 0.7;
 		*left = MAX_SPEED * 0.9;
-	} else if (ps_val[0] < ps_val[7]) {
+	} else if (ps_val[0] < ps_val[7]) { // the left one detected a bigger value, so turning left slightly
 		*left = MAX_SPEED * 0.7;
 		*right = MAX_SPEED * 0.9;
-	} else {
+	} else {	// in the unlikely situation that both sensors detect the same value, move straight
 		*left = MAX_SPEED;
 		*right = MAX_SPEED;
 	}
@@ -220,11 +224,11 @@ void look_for_garbage(double *left, double *right) {
 */
 int touched_wall() {
 	if (gs_val[0] < BLACK_MAX || gs_val[1] < BLACK_MAX || gs_val[2] < BLACK_MAX) {
-			if (gs_val[2] > gs_val[0])
-        turning_around_left = TURNAROUND_COUNTER;
-      else
-        turning_around_right= TURNAROUND_COUNTER;
-			return TRUE;
+		if (gs_val[2] > gs_val[0])	// if the right sensor detects a bigger value, turn left
+        	turning_around_left = TURNAROUND_COUNTER;
+      	else	// if the left sensor detects a bigger value, turn right
+        	turning_around_right= TURNAROUND_COUNTER;
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -234,15 +238,16 @@ int touched_wall() {
 * Once the counter reaches 0 (FALSE) the robot stops turning.
 */
 void turn_around(double *left, double *right) {
-  if (turning_around_left > FALSE) {
-    turning_around_left--;
-    *right = -MAX_SPEED;
-    *left = 0;
-  } else {
-    turning_around_right--;
-    *left = -MAX_SPEED;
-    *right = 0;
-  }
+	// keep on turning to the side it has been turning before, decreasing the counter
+  	if (turning_around_left > FALSE) {
+    	turning_around_left--;
+    	*right = -MAX_SPEED;
+    	*left = 0;
+  	} else {
+    	turning_around_right--;
+    	*left = -MAX_SPEED;
+    	*right = 0;
+  	}
 }
 
 /*
@@ -272,13 +277,14 @@ int main(int argc, char **argv)
     /* Process sensor data here */
     double left, right;
 
+    // if it was turning around, continue
     if (turning_around_left != FALSE || turning_around_right != FALSE) {
     	turn_around(&left, &right);
-    } else if (touched_wall() == TRUE) {
+    } else if (touched_wall() == TRUE) { // if arrived at the disposal area (or obstacle), turn around
     	turn_around(&left, &right);
-    } else if (is_pushing_garbage() == TRUE) {
+    } else if (is_pushing_garbage() == TRUE) { // if it is pushing garbage, call the function to continue with that
     	push_garbage_motor_values(&left, &right);
-    } else {
+    } else {	// if it is not doing anything useful, look for garbage
     	look_for_garbage(&left, &right);
     }
 

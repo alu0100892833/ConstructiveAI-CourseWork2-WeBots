@@ -320,6 +320,7 @@ void recharge_robot(double *left, double *right) {
 * For the rest, try to find a black area on the ground (repairing area).
 */
 void repair_robot(double *left, double *right) {
+  // if it is on a reparation area, stop and repair
 	if (gs_val[0] < BLACK_MAX && gs_val[2] < BLACK_MAX) {
 		repairing = TRUE;
 		*left = 0;
@@ -327,9 +328,9 @@ void repair_robot(double *left, double *right) {
 		damage -= REPARATION;
 		if (damage == IDEAL_DAMAGE)  // already fully repaired
 			repairing = FALSE;
-	} else if (is_object_around() == TRUE) {
+	} else if (is_object_around() == TRUE) {  // if there is an obstacle, avoid
 		object_avoidance_motor_values(left, right);
-	} else {
+	} else {  // look for a black area on the ground, using the method for following the line
 		line_follow_motor_values(left, right);
 	}
 }
@@ -360,6 +361,7 @@ int main(int argc, char **argv)
      *  double val = wb_distance_sensor_get_value(my_sensor);
      */
   	read_sensors();
+    // decide the behavior to run based on the current conditions 
   	int behaviour = determine_behaviour();
 
     /* Process sensor data here */

@@ -64,7 +64,9 @@ static char turning_direction;
 */
 void epuck_init()
 {
+  // variable that states if a wall is being followed
   following = NOT_FOLLOWING_WALL;
+  // variable that sets a counter of iterations needed to determine that the wall has been lost completely
   wall_following_counter = ITERATIONS_TO_LOOSE_WALL;
   int i;
 
@@ -139,15 +141,18 @@ int is_there_an_obstacle() {
 * If the sensors do not return the expected results, then the wall following counter is decreased.
 */
 int is_following_a_wall() {
+    // if we have the wall to the right
   	if (max_proximity_metric(2) == TRUE && ps_val[2] > AVOID_PROX_2) {
     	following = WALL_RIGHT;
     	wall_following_counter = ITERATIONS_TO_LOOSE_WALL;
     	return TRUE;
   	} else if (max_proximity_metric(5) == TRUE && ps_val[5] > AVOID_PROX_5) {
-    	following = WALL_LEFT;
+    	// wall to the left
+      following = WALL_LEFT;
     	wall_following_counter = ITERATIONS_TO_LOOSE_WALL;
     	return TRUE;
   	} else {
+      // wall not detected, so decrease the counter to get close to confirm that the robot lost track of the wall
     	wall_following_counter -= 1;
     	return FALSE;
   	}
@@ -227,6 +232,8 @@ void look_for_a_wall(double *left, double *right) {
 */
 void escape_from_corner(double *left, double *right) {
 	turning_counter--;
+  // the side that is detecting a higher proximity value 
+  // is the side of the wall that the robot came following, so move to the other side
 	int left_value = ps_val[7] + ps_val[6] + ps_val[5];
 	int right_value = ps_val[0] + ps_val[1] + ps_val[2];
 	if (left_value > right_value) {
