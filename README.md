@@ -1,5 +1,6 @@
 # CONSTRUCTING AUTONOMOUS SYSTEMS
-######<center> Constructive Artificial Intelligence, 2017-2018 </center> 
+#### Constructive Artificial Intelligence, 2017-2018
+#### University of Hertfordshire
 
 <br><br>
 
@@ -28,7 +29,7 @@ The first robot is programmed to find a wall and follow it indefinitely. For tha
 3. Avoid every obstacle in the way, trying not to loose the wall in the process.
 4. Avoid getting stuck on corners.
 
-<center><img src="images/WallFollowingDiagram.jpg" width="300" align="middle"></center>
+<center><img src="Report/images/WallFollowingDiagram.jpg" width="300" align="middle"></center>
 
 Subsumption architectures are a type of reactive control architectures used in embodied AI that decomposes the complete behaviour of the robot in a series of sub-behaviours. These sub-behaviours are organised in what are called levels of subsumption, in a way that each level implements a particular behaviour that subsumes its lower levels. Higher levels have a higher priority. 
 
@@ -81,7 +82,7 @@ To program this behavior, we have started from the controller of the previous ro
 3. Push the garbage in a straight line, looking for the wall.
 4. Look for garbage to be cleaned.
 
-<center><img src="images/GarbageDiagram.jpg" width="300" align="middle"></center>
+<center><img src="Report/images/GarbageDiagram.jpg" width="300" align="middle"></center>
 
 We already explained how subsumption architectures work in the previous robot overview. The most basic level guides the robot in the search for garbage to clean. In case the robot has already found garbage to clean, the upper level subsumes this behaviour, making the robot push the garbage. In this process, we must make sure that the robot does not get stuck with obstacles, so the third level takes control when an obstacle is detected, so the robot can avoid it. The top level just makes the robot turn around when the garbage has already been disposed in the disposal area. 
 
@@ -139,7 +140,7 @@ The third and last robot will be a motivated autonomous system that can solve a 
 * Energy (or battery) simply decays with time and speed, and when it reaches value zero, the robot dies. For recharging, the robot needs to situate under a light.
 * Damage is a result of being too close to obstacles. In our environment, obstacles (and the wall) emit hazardous particles that damage the robot, so the robot should remain as far as possible from these obstacles. When reached 100 damage, the robot is destroyed. For repairing, the robot must situate on a black area of the arena.
 
-<center><img src="images/diagrams/Resources-Diagram.jpg" width="300" align="middle"></center>
+<center><img src="Report/images/diagrams/Resources-Diagram.jpg" width="300" align="middle"></center>
 
 This type of motivated architecture has a series of processes that try to maintain the physiological values within a certain range. When the value of this variable (or variables in this case) gets close to a fatal limit, a certain behaviour is triggered (activating function) in order to return that variable to an acceptable value. An organising function combines the individual behavioural components into one coherent behaviour. This is especially important when managing more than one variable, because each variable generally triggers one specific behaviour for adjusting its value.
 
@@ -187,10 +188,10 @@ In the second run, the three robots were dead at 3 minutes and 10 seconds. All o
 
 The following tables show the evolution of the wellbeing of the robot in all the runs performed, both in the simple environment (1 and 2) and in the complex environment (1, 2 and 3).
 
-| ![](images/charts/WB-IT-S1.png) | ![](images/charts/WB-IT-S2.png) | 
+| ![](Report/images/charts/WB-IT-S1.png) | ![](Report/images/charts/WB-IT-S2.png) | 
 | --- | --- |
 
-| ![](images/charts/WB-IT-C1.png) | ![](images/charts/WB-IT-C2.png) | ![](images/charts/WB-IT-C3.png) |
+| ![](Report/images/charts/WB-IT-C1.png) | ![](Report/images/charts/WB-IT-C2.png) | ![](Report/images/charts/WB-IT-C3.png) |
 | --- | --- | --- |
 
 This data reflects what we were able to observe during the testing. The simple environment is much more friendly with the robot, allowing it to maintain a decent level of wellbeing. As we can see in the two first charts, the value goes up and down with time: when it goes down, the robot recovers, before it goes done again and so on.
@@ -203,7 +204,7 @@ In the other two runs, we see that the wellbeing decays overtime and the robot i
 
 Now, we are going to have a look at a more general assessment on the results obtained during the testing phase:
 
-<center><img src="images/General-Tables.png" width="300" align="middle"></center>
+<center><img src="Report/images/General-Tables.png" width="300" align="middle"></center>
 
 These calculations show again the considerably better results obtained with the controller when not having to deal with other robots. To begin with, the Survival Time (S.T.) is about a 50% higher in the simple environment. 
 
